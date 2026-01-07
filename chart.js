@@ -1,45 +1,45 @@
-let fxChart = null;
+let chartInstance = null;
 
-function renderChart(dailyProfit, currencySymbol) {
-    const ctx = document.getElementById('mainChart').getContext('2d');
+function updateProjectionChart(dailyProfit, currencyCode) {
+    const ctx = document.getElementById('carryChart').getContext('2d');
     
-    // Genera dati mensili proiettati
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const projection = months.map((_, i) => (dailyProfit * 30 * (i + 1)).toFixed(2));
+    // Proiezione su 12 mesi (30 giorni l'uno)
+    const labels = ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"];
+    const data = labels.map((_, i) => (dailyProfit * 30 * (i + 1)).toFixed(2));
 
-    if (fxChart) {
-        fxChart.destroy();
+    if (chartInstance) {
+        chartInstance.destroy(); // Distrugge il vecchio grafico prima di crearne uno nuovo
     }
 
-    fxChart = new Chart(ctx, {
+    chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: months,
+            labels: labels,
             datasets: [{
-                label: `Projected Profit (${currencySymbol})`,
-                data: projection,
-                borderColor: '#00ff9d',
-                backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                label: `Cumulative Profit (${currencyCode})`,
+                data: data,
+                borderColor: '#00f2ff',
+                backgroundColor: 'rgba(0, 242, 255, 0.1)',
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: '#00ff9d'
+                pointRadius: 3
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { labels: { color: '#64748b' } }
+                legend: { display: false }
             },
             scales: {
                 y: {
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#64748b' }
+                    grid: { color: '#30363d' },
+                    ticks: { color: '#7d8590', font: { size: 10 } }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#64748b' }
+                    ticks: { color: '#7d8590' }
                 }
             }
         }
