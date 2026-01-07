@@ -1,43 +1,114 @@
-<main class="content">
-            <section class="chart-area">
-                <div class="chart-header">
-                    <h3>12-Month Profit Projection</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Carry Pro | Financial Terminal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <h1>FX<span>CARRY</span></h1>
+                <div class="live-tag"><span class="pulse"></span> LIVE MARKET</div>
+            </div>
+
+            <div class="config-panel">
+                <div class="input-group">
+                    <label>Currency Pair</label>
+                    <div class="pair-selects">
+                        <select id="base-curr"></select>
+                        <span class="vs">/</span>
+                        <select id="quote-curr"></select>
+                    </div>
                 </div>
-                <div class="canvas-container">
-                    <canvas id="mainChart"></canvas>
+
+                <div class="input-group">
+                    <label>Position Size (Units)</label>
+                    <input type="number" id="pos-size" value="100000" step="1000">
+                </div>
+
+                <div class="input-group split">
+                    <div>
+                        <label>Long Rate %</label>
+                        <input type="number" id="l-rate" value="5.50" step="0.01">
+                    </div>
+                    <div>
+                        <label>Short Rate %</label>
+                        <input type="number" id="s-rate" value="0.10" step="0.01">
+                    </div>
+                </div>
+
+                <button id="update-btn" class="btn-primary">UPDATE TERMINAL</button>
+            </div>
+
+            <div class="refresh-status">
+                <p>Next Auto-Refresh: <span id="timer">30</span>s</p>
+                <small>Manual: Press <strong>F5</strong></small>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div id="clock">00:00:00</div>
+                <div class="market-badge">TRADING SESSION OPEN</div>
+            </header>
+
+            <section class="metrics-grid">
+                <div class="metric-card price-highlight">
+                    <span class="caption">Real-Time Exchange Rate</span>
+                    <h2 id="live-price">0.0000</h2>
+                    <p id="price-source">Source: ECB Reference</p>
+                </div>
+                <div class="metric-card">
+                    <span class="caption">Est. Daily Swap</span>
+                    <h2 id="daily-earn">0.00</h2>
+                </div>
+                <div class="metric-card accent-border">
+                    <span class="caption">Annual Yield (Carry)</span>
+                    <h2 id="annual-earn">0.00</h2>
                 </div>
             </section>
 
-            <section class="insights-grid">
-                <div class="card info-card">
-                    <h3>How Carry Trade Works</h3>
-                    <p>The Carry Trade strategy involves borrowing a currency with a <strong>low interest rate</strong> (Funding Currency) to purchase a currency with a <strong>higher interest rate</strong> (Asset Currency).</p>
-                    <ul>
-                        <li><strong>The Goal:</strong> Capture the "Interest Rate Differential".</li>
-                        <li><strong>Daily Earnings:</strong> You earn the difference (swap) every day the position is held overnight.</li>
-                        <li><strong>The Risk:</strong> If the high-yield currency devalues against the low-yield one, the capital loss can exceed the interest gained.</li>
-                    </ul>
+            <section class="chart-section">
+                <h3>12-Month Projection (Cumulative Interest)</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="carryChart"></canvas>
                 </div>
+            </section>
 
-                <div class="card rates-card">
-                    <h3>G20 Central Bank Rates (Ref: Trading Economics)</h3>
-                    <div class="table-wrapper">
-                        <table id="g20-table">
+            <section class="info-grid">
+                <div class="info-block">
+                    <h3>G20 Central Bank Rates</h3>
+                    <div class="table-container">
+                        <table>
                             <thead>
-                                <tr>
-                                    <th>Country/Area</th>
-                                    <th>Currency</th>
-                                    <th>Rate (%)</th>
-                                </tr>
+                                <tr><th>Nation</th><th>CCY</th><th>Rate</th></tr>
                             </thead>
-                            <tbody id="g20-body">
-                                </tbody>
+                            <tbody id="g20-body"></tbody>
                         </table>
                     </div>
                 </div>
+                <div class="info-block">
+                    <h3>Carry Trade Strategy</h3>
+                    <p>The carry trade involves borrowing in a currency with a low interest rate and investing in a currency providing a higher rate of return.</p>
+                    <ul class="strategy-list">
+                        <li><strong>Funding:</strong> Low-yield currency (e.g. JPY).</li>
+                        <li><strong>Investment:</strong> High-yield currency (e.g. USD).</li>
+                        <li><strong>Risk:</strong> Currency fluctuations can offset interest gains.</li>
+                    </ul>
+                </div>
             </section>
 
-            <footer class="disclaimer">
-                <p><strong>FINANCIAL DISCLAIMER:</strong> Trading Forex involves significant risk to your invested capital. The calculations provided by this tool are estimates for educational purposes only. Past performance of interest rates is not indicative of future results. Interest rates are subject to change by Central Banks without notice. Always consult with a certified financial advisor before trading.</p>
+            <footer class="footer-disclaimer">
+                <p><strong>FINANCIAL DISCLAIMER:</strong> Trading Forex carries high risk. Calculations are estimates. Central bank rates change frequently. Data provided by Frankfurter/ECB. Not financial advice.</p>
             </footer>
         </main>
+    </div>
+
+    <script src="chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
