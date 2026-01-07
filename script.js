@@ -1,92 +1,41 @@
-const API_URL = 'https://api.frankfurter.dev/v1';
-let timeLeft = 30;
+// Aggiungi questo oggetto all'inizio del file script.js
+const g20Rates = [
+    { country: "United States", code: "USD", rate: 5.50 },
+    { country: "Euro Area", code: "EUR", rate: 4.50 },
+    { country: "Japan", code: "JPY", rate: 0.10 },
+    { country: "United Kingdom", code: "GBP", rate: 5.25 },
+    { country: "Australia", code: "AUD", rate: 4.35 },
+    { country: "Canada", code: "CAD", rate: 5.00 },
+    { country: "Switzerland", code: "CHF", rate: 1.75 },
+    { country: "Brazil", code: "BRL", rate: 11.25 },
+    { country: "Turkey", code: "TRY", rate: 45.00 },
+    { country: "India", code: "INR", rate: 6.50 },
+    { country: "China", code: "CNY", rate: 3.45 },
+    { country: "South Africa", code: "ZAR", rate: 8.25 }
+];
 
+// Modifica la funzione App.init per includere il rendering della tabella
 const App = {
     async init() {
         this.bindEvents();
+        this.renderG20Table(); // Nuova funzione
         await this.populateCurrencies();
         this.startClock();
         this.updateData();
         this.startTimer();
     },
 
-    bindEvents() {
-        document.getElementById('calc-trigger').onclick = () => this.updateData();
-        
-        // Intercetta F5
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F5') {
-                e.preventDefault();
-                console.log("F5 Pressed: Updating data...");
-                this.updateData();
-            }
+    renderG20Table() {
+        const tbody = document.getElementById('g20-body');
+        g20Rates.forEach(item => {
+            const row = `<tr>
+                <td>${item.country}</td>
+                <td><strong>${item.code}</strong></td>
+                <td style="color: #00ff9d">${item.rate.toFixed(2)}%</td>
+            </tr>`;
+            tbody.innerHTML += row;
         });
     },
-
-    async populateCurrencies() {
-        const res = await fetch(`${API_URL}/currencies`);
-        const data = await res.json();
-        const baseSel = document.getElementById('base-curr');
-        const quoteSel = document.getElementById('quote-curr');
-        
-        Object.keys(data).forEach(code => {
-            baseSel.add(new Option(code, code));
-            quoteSel.add(new Option(code, code));
-        });
-        
-        baseSel.value = 'USD';
-        quoteSel.value = 'JPY';
-    },
-
-    async updateData() {
-        const base = document.getElementById('base-curr').value;
-        const quote = document.getElementById('quote-curr').value;
-        const size = parseFloat(document.getElementById('pos-size').value);
-        const lRate = parseFloat(document.getElementById('l-rate').value) / 100;
-        const sRate = parseFloat(document.getElementById('s-rate').value) / 100;
-
-        try {
-            const res = await fetch(`${API_URL}/latest?base=${base}&symbols=${quote}`);
-            const data = await res.json();
-            const rate = data.rates[quote];
-
-            // Aggiorna UI
-            document.getElementById('live-price').innerText = rate.toFixed(4);
-            document.getElementById('rate-date').innerText = `Source: ECB ${data.date}`;
-
-            // Calcolo Carry (Base Currency)
-            const annual = size * (lRate - sRate);
-            const daily = annual / 365;
-
-            document.getElementById('d-earn').innerText = `${daily.toFixed(2)} ${base}`;
-            document.getElementById('y-earn').innerText = `${annual.toFixed(2)} ${base}`;
-
-            // Aggiorna Grafico
-            renderChart(daily, base);
-            
-            // Reset timer visivo
-            timeLeft = 30;
-        } catch (err) {
-            console.error("API Error:", err);
-        }
-    },
-
-    startTimer() {
-        setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                this.updateData();
-                timeLeft = 30;
-            }
-        }, 1000);
-    },
-
-    startClock() {
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-    }
+    
+    // ... restanti funzioni (updateData, startTimer, etc.) rimangono le stesse
 };
-
-window.onload = () => App.init();
