@@ -1,90 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Carry Pro | Live Terminal</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="dark-theme">
-    <div class="app-wrapper">
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>FX<span>CARRY</span></h2>
-                <div class="live-indicator">
-                    <span class="dot"></span> LIVE DATA
-                </div>
-            </div>
-
-            <div class="input-section">
-                <div class="control-group">
-                    <label>Currency Pair</label>
-                    <div class="pair-inputs">
-                        <select id="base-curr"></select>
-                        <span class="sep">/</span>
-                        <select id="quote-curr"></select>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Position Size</label>
-                    <input type="number" id="pos-size" value="100000" step="1000">
-                </div>
-
-                <div class="control-group">
-                    <label>Long Rate (%)</label>
-                    <input type="number" id="l-rate" value="5.50" step="0.01">
-                </div>
-
-                <div class="control-group">
-                    <label>Short Rate (%)</label>
-                    <input type="number" id="s-rate" value="0.25" step="0.01">
-                </div>
-
-                <button id="calc-trigger" class="btn-main">UPDATE CALCULATIONS</button>
-            </div>
-
-            <div class="refresh-info">
-                <p>Next auto-refresh in: <span id="timer">30</span>s</p>
-                <small>Press <strong>F5</strong> to manual refresh</small>
-            </div>
-        </aside>
-
-        <main class="content">
-            <header class="top-bar">
-                <div id="clock">00:00:00</div>
-                <div class="market-status">MARKET OPEN</div>
-            </header>
-
-            <section class="stats-grid">
-                <div class="stat-card price-card">
-                    <span class="label">Live Exchange Rate</span>
-                    <h1 id="live-price">0.0000</h1>
-                    <span id="rate-date" class="sub">--</span>
-                </div>
-                <div class="stat-card">
-                    <span class="label">Daily Swap (Est.)</span>
-                    <h2 id="d-earn">0.00</h2>
-                </div>
-                <div class="stat-card highlight">
-                    <span class="label">Annual Projection</span>
-                    <h2 id="y-earn">0.00</h2>
-                </div>
-            </section>
-
+<main class="content">
             <section class="chart-area">
                 <div class="chart-header">
-                    <h3>Accumulated Profit Forecast (12 Months)</h3>
+                    <h3>12-Month Profit Projection</h3>
                 </div>
                 <div class="canvas-container">
                     <canvas id="mainChart"></canvas>
                 </div>
             </section>
-        </main>
-    </div>
 
-    <script src="chart.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+            <section class="insights-grid">
+                <div class="card info-card">
+                    <h3>How Carry Trade Works</h3>
+                    <p>The Carry Trade strategy involves borrowing a currency with a <strong>low interest rate</strong> (Funding Currency) to purchase a currency with a <strong>higher interest rate</strong> (Asset Currency).</p>
+                    <ul>
+                        <li><strong>The Goal:</strong> Capture the "Interest Rate Differential".</li>
+                        <li><strong>Daily Earnings:</strong> You earn the difference (swap) every day the position is held overnight.</li>
+                        <li><strong>The Risk:</strong> If the high-yield currency devalues against the low-yield one, the capital loss can exceed the interest gained.</li>
+                    </ul>
+                </div>
+
+                <div class="card rates-card">
+                    <h3>G20 Central Bank Rates (Ref: Trading Economics)</h3>
+                    <div class="table-wrapper">
+                        <table id="g20-table">
+                            <thead>
+                                <tr>
+                                    <th>Country/Area</th>
+                                    <th>Currency</th>
+                                    <th>Rate (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="g20-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="disclaimer">
+                <p><strong>FINANCIAL DISCLAIMER:</strong> Trading Forex involves significant risk to your invested capital. The calculations provided by this tool are estimates for educational purposes only. Past performance of interest rates is not indicative of future results. Interest rates are subject to change by Central Banks without notice. Always consult with a certified financial advisor before trading.</p>
+            </footer>
+        </main>
