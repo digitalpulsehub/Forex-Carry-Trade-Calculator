@@ -1,52 +1,47 @@
-let chartInstance = null;
+let fxChart = null;
 
-function updateChartProjections(dailyInterest) {
-    const ctx = document.getElementById('carryChart').getContext('2d');
+function renderChart(dailyProfit, currencySymbol) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
     
-    // Generate data for 12 months (30 days each)
-    const labels = [];
-    const dataPoints = [];
-    for (let i = 1; i <= 12; i++) {
-        labels.push(`Month ${i}`);
-        dataPoints.push((dailyInterest * 30 * i).toFixed(2));
+    // Genera dati mensili proiettati
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const projection = months.map((_, i) => (dailyProfit * 30 * (i + 1)).toFixed(2));
+
+    if (fxChart) {
+        fxChart.destroy();
     }
 
-    if (chartInstance) {
-        chartInstance.data.datasets[0].data = dataPoints;
-        chartInstance.update();
-    } else {
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Cumulative Profit',
-                    data: dataPoints,
-                    borderColor: '#38bdf8',
-                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    borderWidth: 3
-                }]
+    fxChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: `Projected Profit (${currencySymbol})`,
+                data: projection,
+                borderColor: '#00ff9d',
+                backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#00ff9d'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#64748b' } }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+            scales: {
+                y: {
+                    grid: { color: '#1e293b' },
+                    ticks: { color: '#64748b' }
                 },
-                scales: {
-                    y: {
-                        grid: { color: '#334155' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#94a3b8' }
-                    }
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#64748b' }
                 }
             }
-        });
-    }
+        }
+    });
 }
