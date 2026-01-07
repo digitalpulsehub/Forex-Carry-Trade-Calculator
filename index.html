@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Carry Trade Calculator 2026</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-exchange-alt"></i>
+                    <div>
+                        <h1>Forex Carry Trade Calculator 2026</h1>
+                        <p class="tagline">Professional Forward Points & Carry Trade Analysis</p>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="datetime-display">
+                        <div class="date-time">
+                            <i class="far fa-calendar-alt"></i>
+                            <span id="current-date">Loading...</span>
+                        </div>
+                        <div class="date-time">
+                            <i class="far fa-clock"></i>
+                            <span id="current-time">Loading...</span>
+                        </div>
+                        <div class="market-status">
+                            <i class="fas fa-globe-europe"></i>
+                            <span id="market-status">ECB Live Data</span>
+                        </div>
+                    </div>
+                    
+                    <button id="manual-refresh" class="btn-refresh" title="Refresh Data (F5)">
+                        <i class="fas fa-sync-alt"></i> Refresh Now
+                    </button>
+                </div>
+            </div>
+            
+            <div class="api-source">
+                <i class="fas fa-database"></i>
+                <span>Live Data Source: European Central Bank (ECB) Euro Reference Exchange Rates</span>
+                <span class="update-info" id="last-update-info">Last update: Loading ECB data...</span>
+            </div>
+        </header>
+
+        <!-- Main Calculator Section -->
+        <main>
+            <section class="calculator-section">
+                <div class="card calculator-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-calculator"></i> Carry Trade Calculator</h2>
+                        <div class="card-actions">
+                            <button class="btn-action" id="reset-calculator" title="Reset Calculator">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="btn-action" id="save-settings" title="Save Settings">
+                                <i class="far fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="calculator-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="base-currency">
+                                        <i class="fas fa-flag"></i> Base Currency
+                                    </label>
+                                    <select id="base-currency" class="currency-select">
+                                        <option value="EUR" selected>EUR - Euro (Base)</option>
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="CHF">CHF - Swiss Franc</option>
+                                        <option value="AUD">AUD - Australian Dollar</option>
+                                        <option value="CAD">CAD - Canadian Dollar</option>
+                                        <option value="NZD">NZD - New Zealand Dollar</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="swap-button">
+                                    <button id="swap-currencies" class="btn-icon" title="Swap Currencies">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="quote-currency">
+                                        <i class="fas fa-flag"></i> Quote Currency
+                                    </label>
+                                    <select id="quote-currency" class="currency-select">
+                                        <option value="USD" selected>USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="CHF">CHF - Swiss Franc</option>
+                                        <option value="AUD">AUD - Australian Dollar</option>
+                                        <option value="CAD">CAD - Canadian Dollar</option>
+                                        <option value="NZD">NZD - New Zealand Dollar</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="timeframe">
+                                        <i class="fas fa-calendar-alt"></i> Forward Period
+                                    </label>
+                                    <select id="timeframe" class="period-select">
+                                        <option value="30">30 Days (1 Month)</option>
+                                        <option value="60">60 Days (2 Months)</option>
+                                        <option value="90" selected>90 Days (3 Months)</option>
+                                        <option value="180">180 Days (6 Months)</option>
+                                        <option value="365">365 Days (1 Year)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="investment">
+                                        <i class="fas fa-money-bill-wave"></i> Investment Amount
+                                    </label>
+                                    <div class="input-with-symbol">
+                                        <span class="currency-symbol" id="investment-symbol">€</span>
+                                        <input type="number" id="investment" value="10000" min="100" step="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interest-rates-row">
+                                <div class="form-group">
+                                    <label for="interest-base">
+                                        <i class="fas fa-percentage"></i> Base Currency Interest Rate (%)
+                                    </label>
+                                    <div class="interest-input">
+                                        <input type="number" id="interest-base" value="4.25" step="0.01" min="-1" max="20">
+                                        <span class="rate-source">ECB 2026</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="interest-quote">
+                                        <i class="fas fa-percentage"></i> Quote Currency Interest Rate (%)
+                                    </label>
+                                    <div class="interest-input">
+                                        <input type="number" id="interest-quote" value="5.50" step="0.01" min="-1" max="20">
+                                        <span class="rate-source">Fed 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button id="calculate-btn" class="btn-primary">
+                                    <i class="fas fa-calculator"></i> Calculate Carry Trade
+                                </button>
+                            </div>
+
+                            <div class="api-status">
+                                <div class="status-grid">
+                                    <div class="status-item">
+                                        <span class="status-label">ECB Data Status:</span>
+                                        <span class="status-value online" id="ecb-status">Connecting...</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">ECB Update Time:</span>
+                                        <span class="status-value" id="ecb-update-time">16:00 CET Daily</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Next Auto-Refresh:</span>
+                                        <span class="status-value" id="next-refresh">16:05 CET</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card results-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Calculation Results</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="results-container">
+                            <div class="result-row">
+                                <div class="result-label">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <div>
+                                        <span>Currency Pair</span>
+                                        <small class="pair-info" id="pair-info">Direct Quote</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-pair">EUR/USD</div>
+                            </div>
+                            
+                            <div class="result-row">
+                                <div class="result-label">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <div>
+                                        <span>Spot Rate (ECB)</span>
+                                        <small class="rate-info" id="spot-source">ECB Reference Rate</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-spot">1.08500</div>
+                            </div>
+                            
+                            <div class="result-row">
+                                <div class="result-label">
+                                    <i class="fas fa-forward"></i>
+                                    <div>
+                                        <span>Forward Rate (90D)</span>
+                                        <small class="rate-info">Covered Interest Parity</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-forward">1.08835</div>
+                            </div>
+                            
+                            <div class="result-row highlight">
+                                <div class="result-label">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                    <div>
+                                        <span>Forward Points</span>
+                                        <small class="rate-info">Premium/Discount</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-points">+33.5 pips</div>
+                            </div>
+                            
+                            <div class="result-row">
+                                <div class="result-label">
+                                    <i class="fas fa-percentage"></i>
+                                    <div>
+                                        <span>Interest Rate Differential</span>
+                                        <small class="rate-info">(Quote - Base)</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-differential">+1.25%</div>
+                            </div>
+                            
+                            <div class="result-row highlight">
+                                <div class="result-label">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <div>
+                                        <span>Carry Return (Period)</span>
+                                        <small class="rate-info">90 Days Return</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-carry">+0.309%</div>
+                            </div>
+                            
+                            <div class="result-row highlight">
+                                <div class="result-label">
+                                    <i class="fas fa-calendar"></i>
+                                    <div>
+                                        <span>Annualized Return</span>
+                                        <small class="rate-info">360-Day Convention</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-annualized">+1.25%</div>
+                            </div>
+                            
+                            <div class="result-row profit-loss">
+                                <div class="result-label">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <div>
+                                        <span>Profit/Loss (€10,000)</span>
+                                        <small class="rate-info">Theoretical P&L</small>
+                                    </div>
+                                </div>
+                                <div class="result-value" id="result-profit">+€30.90</div>
+                            </div>
+                            
+                            <div class="result-row">
+                                <div class="result-label">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div>
+                                        <span>Trade Signal</span>
+                                        <small class="rate-info">Based on Annual Return</small>
+                                    </div>
+                                </div>
+                                <div class="result-value signal-positive" id="result-signal">
+                                    <i class="fas fa-arrow-up"></i> BUY
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="chart-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-area"></i> Forward Points Analysis</h2>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-chart="points">
+                                <i class="fas fa-arrows-alt-h"></i> Forward Points
+                            </button>
+                            <button class="chart-btn" data-chart="spot">
+                                <i class="fas fa-chart-line"></i> Spot Rate
+                            </button>
+                            <button class="chart-btn" data-chart="return">
+                                <i class="fas fa-percentage"></i> Carry Return
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="forex-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Major Currency Pairs Table -->
+            <section class="pairs-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list-ol"></i> Major Currency Pairs Analysis (EUR Base)</h2>
+                        <button id="refresh-pairs" class="btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh All
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-info">
+                            <div class="table-stats">
+                                <span><i class="fas fa-database"></i> Live Data: ECB Euro Reference Rates</span>
+                                <span><i class="far fa-clock"></i> Updated Daily at 16:00 CET</span>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table id="currency-pairs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Currency Pair</th>
+                                        <th>Spot Rate (ECB)</th>
+                                        <th>Forward 90D</th>
+                                        <th>Forward Points</th>
+                                        <th>Int. Diff.</th>
+                                        <th>Carry Return</th>
+                                        <th>Annualized</th>
+                                        <th>Signal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pairs-table-body">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer">
+                            <p><i class="fas fa-info-circle"></i> Forward calculations based on Covered Interest Rate Parity using 2026 interest rate projections.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Financial Disclaimer -->
+            <section class="disclaimer-section">
+                <div class="card disclaimer-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Financial Disclaimer & Risk Warning</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="disclaimer-content">
+                            <div class="disclaimer-item warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Important Notice</h3>
+                                <p>This Forex Carry Trade Calculator is provided for <strong>educational and informational purposes only</strong>. All calculations are theoretical and based on simplified models.</p>
+                            </div>
+                            
+                            <div class="disclaimer-item">
+                                <i class="fas fa-balance-scale"></i>
+                                <h3>No Financial Advice</h3>
+                                <p>The information provided does <strong>not constitute financial advice, investment recommendations, or solicitation to trade</strong>. All trading decisions should be based on your own research.</p>
+                            </div>
+                            
+                            <div class="disclaimer-item">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>Data Limitations</h3>
+                                <p>Exchange rate data is sourced from the European Central Bank (ECB) and is updated once daily. Interest rates are 2026 projections. <strong>Real market conditions may differ significantly</strong>.</p>
+                            </div>
+                            
+                            <div class="disclaimer-item danger">
+                                <i class="fas fa-radiation"></i>
+                                <h3>Trading Risks</h3>
+                                <p>Foreign exchange trading involves <strong>substantial risk of loss</strong> and is not suitable for all investors. Past performance is not indicative of future results.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-exchange-alt"></i> Forex Carry Trade Calculator</h3>
+                    <p>Professional tool for calculating forward points and carry trade returns. Updated for 2026.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-database"></i> Data Sources</h3>
+                    <p>Spot Rates: European Central Bank<br>
+                    Interest Rates: Central Bank Projections<br>
+                    Calculations: Covered Interest Rate Parity</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-code"></i> Technology</h3>
+                    <p>HTML5, CSS3, JavaScript<br>
+                    Chart.js, Luxon DateTime<br>
+                    ECB XML Data Integration</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2026 Forex Carry Trade Calculator. <strong>Educational tool only. Not financial advice.</strong></p>
+                <p class="disclaimer">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Currency trading involves substantial risk. Consult financial professionals before trading.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loading-message">Loading ECB Forex Data...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
