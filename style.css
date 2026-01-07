@@ -1,80 +1,101 @@
-:root {
-    --bg-dark: #0f172a;
-    --card-bg: #1e293b;
-    --accent: #38bdf8;
-    --text-main: #f1f5f9;
-    --text-dim: #94a3b8;
-    --success: #22c55e;
-    --border: #334155;
-}
+const API_BASE = 'https://api.frankfurter.dev/v1';
+let refreshTimer = 30;
+let countdownInterval;
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    line-height: 1.5;
-}
+// Core App Logic
+const App = {
+    async init() {
+        this.updateClock();
+        await this.loadCurrencies();
+        this.startAutoRefresh();
+        this.addEventListeners();
+        this.performUpdate();
+    },
 
-.app-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    updateClock() {
+        const now = new Date();
+        document.getElementById('current-date').innerText = now.toLocaleString('en-US', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        setTimeout(() => this.updateClock(), 1000);
+    },
 
-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;
-}
+    async loadCurrencies() {
+        const res = await fetch(`${API_BASE}/currencies`);
+        const data = await res.json();
+        const selects = [document.getElementById('base-currency'), document.getElementById('quote-currency')];
+        
+        selects.forEach((s, i) => {
+            Object.keys(data).forEach(code => {
+                let opt = new Option(code, code);
+                s.add(opt);
+            });
+            s.value = i === 0 ? 'USD' : 'JPY';
+        });
+    },
 
-.logo-area h1 { font-size: 1.5rem; letter-spacing: -1px; }
-.logo-area span { color: var(--accent); }
-#current-date { font-size: 0.85rem; color: var(--text-dim); }
+    async performUpdate() {
+        const base = document.getElementById('base-currency').value;
+        const quote = document.getElementById('quote-currency').value;
+        const size = parseFloat(document.getElementById('position-size').value);
+        const lRate = parseFloat(document.getElementById('long-rate').value) / 100;
+        const sRate = parseFloat(document.getElementById('short-rate').value) / 100;
 
-.status-bar { display: flex; align-items: center; gap: 15px; }
-#refresh-status { font-size: 0.8rem; color: var(--success); text-transform: uppercase; font-weight: bold; }
-.timer-circle {
-    width: 35px; height: 35px; border: 2px solid var(--accent);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
-}
+        try {
+            const res = await fetch(`${API_BASE}/latest?base=${base}&symbols=${quote}`);
+            const data = await res.json();
+            const rate = data.rates[quote];
 
-.dashboard-grid {
-    display: grid; grid-template-columns: 350px 1fr; gap: 20px;
-}
+            // Update UI
+            document.getElementById('live-price').innerText = rate.toFixed(4);
+            document.getElementById('price-date').innerText = `ECB Rate Date: ${data.date}`;
 
-.card {
-    background: var(--card-bg); border-radius: 12px; padding: 20px;
-    border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-}
+            // Math: Profit = Size * (Interest Diff) 
+            // We use the base currency (the one you own) as the result unit
+            const annual = size * (lRate - sRate);
+            const monthly = annual / 12;
+            const daily = annual / 365;
 
-.input-row { margin-bottom: 20px; }
-.input-row label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; }
-.pair-select { display: flex; align-items: center; gap: 10px; }
+            document.getElementById('daily-res').innerText = `${daily.toFixed(2)} ${base}`;
+            document.getElementById('monthly-res').innerText = `${monthly.toFixed(2)} ${base}`;
+            document.getElementById('annual-res').innerText = `${annual.toFixed(2)} ${base}`;
 
-input, select {
-    width: 100%; background: #0f172a; border: 1px solid var(--border);
-    color: white; padding: 12px; border-radius: 8px; outline: none;
-}
+            // Update Chart (from chart.js)
+            updateChartProjections(daily);
 
-.split { display: flex; gap: 10px; }
-.primary-btn {
-    width: 100%; background: var(--accent); color: var(--bg-dark);
-    padding: 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;
-}
+        } catch (e) {
+            console.error("Fetch error:", e);
+        }
+    },
 
-.market-card { margin-bottom: 20px; text-align: center; }
-#live-price { font-size: 2.5rem; color: var(--accent); margin: 10px 0; }
+    startAutoRefresh() {
+        clearInterval(countdownInterval);
+        refreshTimer = 30;
+        countdownInterval = setInterval(() => {
+            refreshTimer--;
+            document.getElementById('timer').innerText = `${refreshTimer}s`;
+            if (refreshTimer <= 0) {
+                this.performUpdate();
+                refreshTimer = 30;
+            }
+        }, 1000);
+    },
 
-.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-.result-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-.result-card span { font-size: 0.75rem; color: var(--text-dim); }
-.highlight { border-color: var(--success); }
+    addEventListeners() {
+        document.getElementById('calculate-btn').onclick = () => this.performUpdate();
+        document.getElementById('refresh-btn').onclick = () => {
+            this.performUpdate();
+            this.startAutoRefresh();
+        };
+        // F5 Handler
+        window.onkeydown = (e) => {
+            if (e.key === 'F5') {
+                e.preventDefault();
+                this.performUpdate();
+                this.startAutoRefresh();
+            }
+        };
+    }
+};
 
-.chart-panel { grid-column: span 2; }
-.canvas-wrapper { height: 350px; width: 100%; }
-
-.icon-btn {
-    background: none; border: 1px solid var(--border); color: white;
-    cursor: pointer; padding: 8px; border-radius: 5px; font-size: 1.2rem;
-}
-
-@media (max-width: 900px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .chart-panel { grid-column: span 1; }
-}
+App.init();
