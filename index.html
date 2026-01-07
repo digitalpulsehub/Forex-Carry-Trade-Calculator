@@ -3,107 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FX Carry Pro | Financial Terminal</title>
+    <title>Forex Carry Pro Terminal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="app-container">
+    <div class="terminal-container">
         <aside class="sidebar">
-            <div class="brand">
+            <div class="logo">
                 <h1>FX<span>CARRY</span></h1>
-                <div class="live-tag"><span class="pulse"></span> LIVE MARKET</div>
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span> LIVE MARKET DATA
+                </div>
             </div>
 
-            <div class="config-panel">
-                <div class="input-group">
-                    <label>Currency Pair</label>
-                    <div class="pair-selects">
-                        <select id="base-curr"></select>
-                        <span class="vs">/</span>
-                        <select id="quote-curr"></select>
-                    </div>
+            <div class="control-panel">
+                <div class="input-field">
+                    <label>Long Currency (Buy)</label>
+                    <select id="base-currency"></select>
                 </div>
-
-                <div class="input-group">
+                <div class="input-field">
+                    <label>Short Currency (Sell)</label>
+                    <select id="quote-currency"></select>
+                </div>
+                <div class="input-field">
                     <label>Position Size (Units)</label>
                     <input type="number" id="pos-size" value="100000" step="1000">
                 </div>
-
-                <div class="input-group split">
-                    <div>
+                <div class="input-row">
+                    <div class="input-field">
                         <label>Long Rate %</label>
-                        <input type="number" id="l-rate" value="5.50" step="0.01">
+                        <input type="number" id="long-rate-val" value="5.50" step="0.01">
                     </div>
-                    <div>
+                    <div class="input-field">
                         <label>Short Rate %</label>
-                        <input type="number" id="s-rate" value="0.10" step="0.01">
+                        <input type="number" id="short-rate-val" value="0.10" step="0.01">
                     </div>
                 </div>
-
-                <button id="update-btn" class="btn-primary">UPDATE TERMINAL</button>
+                <button id="refresh-btn">UPDATE CALCULATIONS</button>
             </div>
 
-            <div class="refresh-status">
-                <p>Next Auto-Refresh: <span id="timer">30</span>s</p>
-                <small>Manual: Press <strong>F5</strong></small>
+            <div class="system-info">
+                <p>Auto-Refresh in: <span id="timer-display">30</span>s</p>
+                <small>Pro Tip: Press <strong>F5</strong> to update</small>
             </div>
         </aside>
 
-        <main class="main-content">
-            <header class="top-nav">
-                <div id="clock">00:00:00</div>
-                <div class="market-badge">TRADING SESSION OPEN</div>
+        <main class="dashboard">
+            <header class="dash-header">
+                <div id="current-time">00:00:00</div>
+                <div class="market-status">INSTITUTIONAL FEED ACTIVE</div>
             </header>
 
-            <section class="metrics-grid">
-                <div class="metric-card price-highlight">
-                    <span class="caption">Real-Time Exchange Rate</span>
-                    <h2 id="live-price">0.0000</h2>
-                    <p id="price-source">Source: ECB Reference</p>
+            <section class="top-stats">
+                <div class="stat-card highlight">
+                    <span class="label">Real-Time Exchange Rate</span>
+                    <h2 id="live-rate-display">0.0000</h2>
+                    <span class="sub-label" id="update-date">Source: ECB / Frankfurter</span>
                 </div>
-                <div class="metric-card">
-                    <span class="caption">Est. Daily Swap</span>
-                    <h2 id="daily-earn">0.00</h2>
+                <div class="stat-card">
+                    <span class="label">Daily Carry Earn</span>
+                    <h2 id="daily-profit">0.00</h2>
                 </div>
-                <div class="metric-card accent-border">
-                    <span class="caption">Annual Yield (Carry)</span>
-                    <h2 id="annual-earn">0.00</h2>
+                <div class="stat-card">
+                    <span class="label">Annual Projected Yield</span>
+                    <h2 id="annual-profit">0.00</h2>
                 </div>
             </section>
 
-            <section class="chart-section">
-                <h3>12-Month Projection (Cumulative Interest)</h3>
-                <div class="canvas-wrapper">
+            <section class="chart-container">
+                <div class="chart-header">
+                    <h3>12-Month Cumulative Projection</h3>
+                </div>
+                <div class="canvas-holder">
                     <canvas id="carryChart"></canvas>
                 </div>
             </section>
 
             <section class="info-grid">
-                <div class="info-block">
-                    <h3>G20 Central Bank Rates</h3>
-                    <div class="table-container">
+                <div class="info-card">
+                    <h3>G20 Interest Rates Reference</h3>
+                    <div class="table-scroll">
                         <table>
                             <thead>
                                 <tr><th>Nation</th><th>CCY</th><th>Rate</th></tr>
                             </thead>
-                            <tbody id="g20-body"></tbody>
+                            <tbody id="g20-table-body">
+                                </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="info-block">
+                <div class="info-card">
                     <h3>Carry Trade Strategy</h3>
-                    <p>The carry trade involves borrowing in a currency with a low interest rate and investing in a currency providing a higher rate of return.</p>
-                    <ul class="strategy-list">
-                        <li><strong>Funding:</strong> Low-yield currency (e.g. JPY).</li>
-                        <li><strong>Investment:</strong> High-yield currency (e.g. USD).</li>
-                        <li><strong>Risk:</strong> Currency fluctuations can offset interest gains.</li>
+                    <p>A carry trade is a strategy where an investor borrows money in a currency with a low interest rate and invests it in a currency with a higher interest rate.</p>
+                    <ul class="logic-list">
+                        <li><strong>Funding:</strong> Short the low-yield currency.</li>
+                        <li><strong>Profit:</strong> Earn the interest differential (Swap).</li>
+                        <li><strong>Risk:</strong> Exchange rate volatility is the primary risk factor.</li>
                     </ul>
                 </div>
             </section>
 
-            <footer class="footer-disclaimer">
-                <p><strong>FINANCIAL DISCLAIMER:</strong> Trading Forex carries high risk. Calculations are estimates. Central bank rates change frequently. Data provided by Frankfurter/ECB. Not financial advice.</p>
+            <footer class="legal-disclaimer">
+                <p><strong>FINANCIAL DISCLAIMER:</strong> Trading Forex involves high risk. This tool is for educational purposes only. Past performance of interest rates does not guarantee future results. Calculations do not include broker spreads or commissions.</p>
             </footer>
         </main>
     </div>
