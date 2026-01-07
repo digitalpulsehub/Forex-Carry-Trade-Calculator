@@ -1,73 +1,92 @@
-const API_URL = 'https://api.frankfurter.app';
+const API_URL = 'https://api.frankfurter.dev/v1';
+let timeLeft = 30;
 
-// Update Time
-function updateTime() {
-    const now = new Date();
-    document.getElementById('datetime').innerText = now.toLocaleString('en-US', { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-    });
-}
-setInterval(updateTime, 1000);
-updateTime();
+const App = {
+    async init() {
+        this.bindEvents();
+        await this.populateCurrencies();
+        this.startClock();
+        this.updateData();
+        this.startTimer();
+    },
 
-// Fetch available currencies
-async function initCurrencies() {
-    try {
-        const response = await fetch(`${API_URL}/currencies`);
-        const data = await response.json();
-        const baseSelect = document.getElementById('base-currency');
-        const quoteSelect = document.getElementById('quote-currency');
-
-        Object.keys(data).forEach(code => {
-            let opt1 = new Option(`${code} - ${data[code]}`, code);
-            let opt2 = new Option(`${code} - ${data[code]}`, code);
-            baseSelect.add(opt1);
-            quoteSelect.add(opt2);
+    bindEvents() {
+        document.getElementById('calc-trigger').onclick = () => this.updateData();
+        
+        // Intercetta F5
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F5') {
+                e.preventDefault();
+                console.log("F5 Pressed: Updating data...");
+                this.updateData();
+            }
         });
+    },
 
-        // Defaults
-        baseSelect.value = 'USD';
-        quoteSelect.value = 'JPY';
-    } catch (error) {
-        console.error("Error fetching currencies:", error);
+    async populateCurrencies() {
+        const res = await fetch(`${API_URL}/currencies`);
+        const data = await res.json();
+        const baseSel = document.getElementById('base-curr');
+        const quoteSel = document.getElementById('quote-curr');
+        
+        Object.keys(data).forEach(code => {
+            baseSel.add(new Option(code, code));
+            quoteSel.add(new Option(code, code));
+        });
+        
+        baseSel.value = 'USD';
+        quoteSel.value = 'JPY';
+    },
+
+    async updateData() {
+        const base = document.getElementById('base-curr').value;
+        const quote = document.getElementById('quote-curr').value;
+        const size = parseFloat(document.getElementById('pos-size').value);
+        const lRate = parseFloat(document.getElementById('l-rate').value) / 100;
+        const sRate = parseFloat(document.getElementById('s-rate').value) / 100;
+
+        try {
+            const res = await fetch(`${API_URL}/latest?base=${base}&symbols=${quote}`);
+            const data = await res.json();
+            const rate = data.rates[quote];
+
+            // Aggiorna UI
+            document.getElementById('live-price').innerText = rate.toFixed(4);
+            document.getElementById('rate-date').innerText = `Source: ECB ${data.date}`;
+
+            // Calcolo Carry (Base Currency)
+            const annual = size * (lRate - sRate);
+            const daily = annual / 365;
+
+            document.getElementById('d-earn').innerText = `${daily.toFixed(2)} ${base}`;
+            document.getElementById('y-earn').innerText = `${annual.toFixed(2)} ${base}`;
+
+            // Aggiorna Grafico
+            renderChart(daily, base);
+            
+            // Reset timer visivo
+            timeLeft = 30;
+        } catch (err) {
+            console.error("API Error:", err);
+        }
+    },
+
+    startTimer() {
+        setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                this.updateData();
+                timeLeft = 30;
+            }
+        }, 1000);
+    },
+
+    startClock() {
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
     }
-}
+};
 
-async function calculateCarry() {
-    const base = document.getElementById('base-currency').value;
-    const quote = document.getElementById('quote-currency').value;
-    const size = parseFloat(document.getElementById('position-size').value);
-    const longRate = parseFloat(document.getElementById('long-rate').value) / 100;
-    const shortRate = parseFloat(document.getElementById('short-rate').value) / 100;
-
-    if (base === quote) {
-        alert("Please select two different currencies.");
-        return;
-    }
-
-    try {
-        // Fetch exchange rate
-        const response = await fetch(`${API_URL}/latest?from=${base}&to=${quote}`);
-        const data = await response.json();
-        const rate = data.rates[quote];
-
-        // Carry Trade Formula: (Long Rate - Short Rate) * Position Size / 365
-        const annualInterest = size * (longRate - shortRate);
-        const dailyInterest = annualInterest / 365;
-        const monthlyInterest = annualInterest / 12;
-
-        // Display results
-        document.getElementById('daily-res').innerText = `${dailyInterest.toFixed(2)} ${base}`;
-        document.getElementById('monthly-res').innerText = `${monthlyInterest.toFixed(2)} ${base}`;
-        document.getElementById('annual-res').innerText = `${annualInterest.toFixed(2)} ${base}`;
-
-        // Update Chart
-        updateChartData(dailyInterest);
-
-    } catch (error) {
-        console.error("Calculation error:", error);
-    }
-}
-
-document.getElementById('calculate-btn').addEventListener('click', calculateCarry);
-initCurrencies();
+window.onload = () => App.init();
