@@ -3,61 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Carry Trade Calculator</title>
+    <title>FX Carry Pro - Calculator</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <header>
-            <h1>Forex Carry Trade Calculator</h1>
-            <div id="datetime"></div>
+            <div class="logo-area">
+                <h1>FX Carry <span>Pro</span></h1>
+                <p id="current-date"></p>
+            </div>
+            <div class="status-bar">
+                <span id="refresh-status">Live Updates Active</span>
+                <div class="timer-circle" id="timer">30s</div>
+                <button id="refresh-btn" class="icon-btn" title="Refresh Now (F5)">↻</button>
+            </div>
         </header>
 
-        <main>
-            <section class="calculator-card">
-                <div class="input-grid">
-                    <div class="input-group">
-                        <label for="base-currency">Long Currency (High Interest)</label>
+        <main class="dashboard-grid">
+            <section class="card inputs-panel">
+                <h3>Trade Configuration</h3>
+                <div class="input-row">
+                    <label>Pair</label>
+                    <div class="pair-select">
                         <select id="base-currency"></select>
-                    </div>
-                    <div class="input-group">
-                        <label for="quote-currency">Short Currency (Low Interest)</label>
+                        <span>/</span>
                         <select id="quote-currency"></select>
                     </div>
-                    <div class="input-group">
-                        <label for="position-size">Position Size (Units)</label>
-                        <input type="number" id="position-size" value="100000" step="1000">
+                </div>
+                <div class="input-row">
+                    <label>Position Size (Units)</label>
+                    <input type="number" id="position-size" value="100000">
+                </div>
+                <div class="input-row split">
+                    <div>
+                        <label>Long Rate (%)</label>
+                        <input type="number" id="long-rate" value="5.25" step="0.01">
                     </div>
-                    <div class="input-group">
-                        <label for="long-rate">Long Rate (%)</label>
-                        <input type="number" id="long-rate" value="5.50" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label for="short-rate">Short Rate (%)</label>
+                    <div>
+                        <label>Short Rate (%)</label>
                         <input type="number" id="short-rate" value="0.10" step="0.01">
                     </div>
                 </div>
-                <button id="calculate-btn">Calculate Earnings</button>
+                <button id="calculate-btn" class="primary-btn">Update Calculation</button>
             </section>
 
-            <section class="results-grid">
-                <div class="result-item">
-                    <span>Daily Interest</span>
-                    <strong id="daily-res">$0.00</strong>
-                </div>
-                <div class="result-item">
-                    <span>Monthly Interest</span>
-                    <strong id="monthly-res">$0.00</strong>
-                </div>
-                <div class="result-item">
-                    <span>Annual Interest</span>
-                    <strong id="annual-res">$0.00</strong>
-                </div>
-            </section>
+            <div class="data-column">
+                <section class="card market-card">
+                    <div class="market-price">
+                        <span class="label">Current Market Price</span>
+                        <h2 id="live-price">--.----</h2>
+                        <span class="trend" id="price-date">Last update: --:--</span>
+                    </div>
+                </section>
 
-            <section class="chart-container">
-                <canvas id="carryChart"></canvas>
+                <section class="results-grid">
+                    <div class="result-card">
+                        <span>Daily Earn</span>
+                        <h4 id="daily-res">0.00</h4>
+                    </div>
+                    <div class="result-card">
+                        <span>Monthly Earn</span>
+                        <h4 id="monthly-res">0.00</h4>
+                    </div>
+                    <div class="result-card highlight">
+                        <span>Annual Yield</span>
+                        <h4 id="annual-res">0.00</h4>
+                    </div>
+                </section>
+            </div>
+
+            <section class="card chart-panel">
+                <h3>12-Month Profit Projection</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="carryChart"></canvas>
+                </div>
             </section>
         </main>
     </div>
