@@ -3,81 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FX Carry Pro - Calculator</title>
+    <title>Forex Carry Pro | Live Terminal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="app-container">
-        <header>
-            <div class="logo-area">
-                <h1>FX Carry <span>Pro</span></h1>
-                <p id="current-date"></p>
+<body class="dark-theme">
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>FX<span>CARRY</span></h2>
+                <div class="live-indicator">
+                    <span class="dot"></span> LIVE DATA
+                </div>
             </div>
-            <div class="status-bar">
-                <span id="refresh-status">Live Updates Active</span>
-                <div class="timer-circle" id="timer">30s</div>
-                <button id="refresh-btn" class="icon-btn" title="Refresh Now (F5)">↻</button>
-            </div>
-        </header>
 
-        <main class="dashboard-grid">
-            <section class="card inputs-panel">
-                <h3>Trade Configuration</h3>
-                <div class="input-row">
-                    <label>Pair</label>
-                    <div class="pair-select">
-                        <select id="base-currency"></select>
-                        <span>/</span>
-                        <select id="quote-currency"></select>
+            <div class="input-section">
+                <div class="control-group">
+                    <label>Currency Pair</label>
+                    <div class="pair-inputs">
+                        <select id="base-curr"></select>
+                        <span class="sep">/</span>
+                        <select id="quote-curr"></select>
                     </div>
                 </div>
-                <div class="input-row">
-                    <label>Position Size (Units)</label>
-                    <input type="number" id="position-size" value="100000">
+
+                <div class="control-group">
+                    <label>Position Size</label>
+                    <input type="number" id="pos-size" value="100000" step="1000">
                 </div>
-                <div class="input-row split">
-                    <div>
-                        <label>Long Rate (%)</label>
-                        <input type="number" id="long-rate" value="5.25" step="0.01">
-                    </div>
-                    <div>
-                        <label>Short Rate (%)</label>
-                        <input type="number" id="short-rate" value="0.10" step="0.01">
-                    </div>
+
+                <div class="control-group">
+                    <label>Long Rate (%)</label>
+                    <input type="number" id="l-rate" value="5.50" step="0.01">
                 </div>
-                <button id="calculate-btn" class="primary-btn">Update Calculation</button>
+
+                <div class="control-group">
+                    <label>Short Rate (%)</label>
+                    <input type="number" id="s-rate" value="0.25" step="0.01">
+                </div>
+
+                <button id="calc-trigger" class="btn-main">UPDATE CALCULATIONS</button>
+            </div>
+
+            <div class="refresh-info">
+                <p>Next auto-refresh in: <span id="timer">30</span>s</p>
+                <small>Press <strong>F5</strong> to manual refresh</small>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="top-bar">
+                <div id="clock">00:00:00</div>
+                <div class="market-status">MARKET OPEN</div>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card price-card">
+                    <span class="label">Live Exchange Rate</span>
+                    <h1 id="live-price">0.0000</h1>
+                    <span id="rate-date" class="sub">--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Daily Swap (Est.)</span>
+                    <h2 id="d-earn">0.00</h2>
+                </div>
+                <div class="stat-card highlight">
+                    <span class="label">Annual Projection</span>
+                    <h2 id="y-earn">0.00</h2>
+                </div>
             </section>
 
-            <div class="data-column">
-                <section class="card market-card">
-                    <div class="market-price">
-                        <span class="label">Current Market Price</span>
-                        <h2 id="live-price">--.----</h2>
-                        <span class="trend" id="price-date">Last update: --:--</span>
-                    </div>
-                </section>
-
-                <section class="results-grid">
-                    <div class="result-card">
-                        <span>Daily Earn</span>
-                        <h4 id="daily-res">0.00</h4>
-                    </div>
-                    <div class="result-card">
-                        <span>Monthly Earn</span>
-                        <h4 id="monthly-res">0.00</h4>
-                    </div>
-                    <div class="result-card highlight">
-                        <span>Annual Yield</span>
-                        <h4 id="annual-res">0.00</h4>
-                    </div>
-                </section>
-            </div>
-
-            <section class="card chart-panel">
-                <h3>12-Month Profit Projection</h3>
-                <div class="canvas-wrapper">
-                    <canvas id="carryChart"></canvas>
+            <section class="chart-area">
+                <div class="chart-header">
+                    <h3>Accumulated Profit Forecast (12 Months)</h3>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="mainChart"></canvas>
                 </div>
             </section>
         </main>
